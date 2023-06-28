@@ -26,7 +26,7 @@ from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from openapi_server.models.appointment_dto import AppointmentDto
 from openapi_server.models.message_dto import MessageDto
 from openapi_server.models.text_schedule_appointments import TextScheduleAppointments
-
+import asyncio
 
 router = APIRouter()
 
@@ -59,11 +59,11 @@ async def schedule_appointments_post(
 
         existing_chats = [
             {"role":"system","content":"Assistant is an AI chatbot that helps users turn a natural language list into JSON format. After users input a list they want in JSON format, it will provide suggested list of attribute labels if the user has not provided any, then ask the user"},
-            {"role":"user","content":"schedule a follow-up appointment for the patient named 'Johnson' on June 11th at 3 PM with Doctor Kiran. I would like to discuss my symptoms, which include a headache and feeling ill."},
-            {"role":"assistant","content":"{\"id\": \"auto-generated\",\n  \"appointmentType\": 0,\n  \"appointmentDate\": \"2023-06-11\",\n  \"slotTime\": \"3 PM\",\n  \"createdBy\": \"string\",\n ,\n  \"symptoms\": \"headache and feeling ill\",\n  \"slotId\": \"string\",\n  \"doctorName\": \"Doctor Kiran\",\n  \"patientName\": \"Johnson\"}"},
+            {"role":"user","content":"schedule a follow-up virtual appointment   on June 11th at 3 PM"},
+            {"role":"assistant","content":"{\"id\": \"auto-generated\",\n  \"appointmentType\": 1,\n  \"appointmentDate\": \"2023-06-11\",\n  \"slotTime\": \"3 PM\",\n  \"symptoms\": \"headache and feeling ill\"}"},
             {"role": "user", "content": "what services you provide or how can you help me"},
             {"role": "assistant", "content": "I can help you with various tasks schedule a follow-up appointments and more."},
-            {"role": "user", "content": " note current date was "+str(date)+" and appointmentDate,slotTime,patientName,symptoms are required make sure you get it from user and make sure you didn't miss any fields while generating the response"},
+            {"role": "user", "content": " note current date was "+str(date)+" and appointmentDate,slotTime,symptoms and appointmentType=(1 if vitual apponitment else 2 for in-person visit)are required make sure you get it from user and make sure you didn't miss any fields while generating the response"},
             {"role": "assistant", "content": "Sure i make a note current date was"+str(date)+"and i generate dates accourding to this date"},
         ]
         # new_chat = [{"role": "user", "content": text_creategoal.text}]
@@ -72,19 +72,21 @@ async def schedule_appointments_post(
             new_chat = {"role": i.role, "content": i.content}
             existing_chats.append(new_chat)
         # print(existing_chats)
-
-        completion = openai.ChatCompletion.create(
-                    engine="DynamicDashboards",
-                    messages = existing_chats,
-                    temperature=0.7,
-                    max_tokens=2054,
-                    top_p=0.95,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                    stop=None,
-                    timeout=20
-                    )
-        data=completion.choices[0].message.content
+        async def callazureapi(data):
+            completion = openai.ChatCompletion.create(
+                        engine="DynamicDashboards",
+                        messages = data,
+                        temperature=0.7,
+                        max_tokens=2054,
+                        top_p=0.95,
+                        frequency_penalty=0,
+                        presence_penalty=0,
+                        stop=None,
+                        timeout=20
+                        )
+            return completion
+        response = await asyncio.wait_for(callazureapi(existing_chats), timeout=1)
+        data=response.choices[0].message.content
         print("response",data)
 
         return JSONResponse(
@@ -104,6 +106,18 @@ async def schedule_appointments_post(
         return JSONResponse(
             status_code=404,
             content={"message": "invalid input: " },
+        )
+    except openai.error.InvalidRequestError:
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=404,
+            content={"message": "invalid input: " },
+        )
+    except asyncio.TimeoutError:
+        # Handle the timeout error
+        return JSONResponse(
+            status_code=404,
+            content={"message": "time out"},
         )
     except:
         traceback.print_exc()

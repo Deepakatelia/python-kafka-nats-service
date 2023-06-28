@@ -120,9 +120,11 @@ async def extractintent_post(
             print(type(response))
             response["intent"]="appointment"
             return JSONResponse(
-            status_code=200,
-            content=response,
+                status_code=200,
+                content=response,
             )
+
+
         elif intent=="goal":
             text_create_goal =TextCreategoal(text=textintent.text)
             res= await creategoal_post(text_create_goal)
@@ -130,10 +132,9 @@ async def extractintent_post(
             # print(response.content)
             response["intent"]="goal"
             print((response))
-
             return JSONResponse(
-            status_code=200,
-            content=response,
+                status_code=200,
+                content=response,
             )
         elif intent=="preauthorization":
             text_preauthorization =Textpreauthorization(text=textintent.text)
@@ -141,12 +142,12 @@ async def extractintent_post(
             response = json.loads(res.body.decode())
             # print(response.content)
             response["intent"]="preauthorization"
-            print((response))
-
+            print((res.status_code))
             return JSONResponse(
-            status_code=200,
-            content=response,
+                status_code=200,
+                content=response,
             )
+
         elif intent==False:
             completion_general_bot = openai.ChatCompletion.create(
                     engine="DynamicDashboards",
@@ -169,7 +170,7 @@ async def extractintent_post(
         )
 
         return JSONResponse(
-            status_code=402,
+            status_code=202,
             content={"intent": intent},
         )
     except openai.error.AuthenticationError:
