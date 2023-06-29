@@ -25,7 +25,10 @@ from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from openapi_server.models.message_dto import MessageDto
 from openapi_server.models.preauthorization_dto import PreauthorizationDto
 from openapi_server.models.textpreauthorization import Textpreauthorization
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 router = APIRouter()
 
@@ -70,21 +73,17 @@ async def preauthorization_post(
         for i in textpreauthorization.text:
             new_chat = {"role": i.role, "content": i.content}
             existing_chats.append(new_chat)
-        openai.api_type = "azure"
-        openai.api_base = "https://atelia.openai.azure.com/"
-        openai.api_version = "2023-03-15-preview"
-        openai.api_key = "241c592906b04cbca1be6703ee1089b8"
+            
         completion = openai.ChatCompletion.create(
-                    engine="DynamicDashboards",
-                    messages = existing_chats,
-                    temperature=0.7,
-                    max_tokens=2054,
-                    top_p=0.95,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                    stop=None,
-                    timeout=20
-                    )
+            model="gpt-3.5-turbo",
+            messages = existing_chats,
+            temperature=0.7,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None,
+            timeout=20
+        )
         
         data=completion.choices[0].message.content
         

@@ -29,23 +29,16 @@ from starlette.responses import JSONResponse
 from openapi_server.models.create_x_axis_dto import CreateXAxisDto
 from openapi_server.models.create_y_axis_dto import CreateYAxisDto
 from openapi_server.models.create_y_axis_dto import CreateYAxisDto
-
-# openai.api_key = "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"
-from dotenv import load_dotenv
-import os
-
-# Load the environment variables from the .env file
-# dotenv_path = "C:\Users\deepa\PycharmProjects\chatgpt-apis\server2\.env"
-# load_dotenv(dotenv_path)
 import openai
-
-
 import datetime
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from openapi_server.models.create_chart_dto import CreateChartDto
 from openapi_server.models.message_dto import MessageDto
 from openapi_server.models.textreportgenerator import Textreportgenerator
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 router = APIRouter()
 
 
@@ -64,10 +57,6 @@ async def reportgeneratror_post(
         text_report_generator: Textreportgenerator = Body(None, description=""),
 ) -> CreateChartDto:
     try:
-        openai.api_type = "azure"
-        openai.api_base = "https://atelia.openai.azure.com/"
-        openai.api_version = "2023-03-15-preview"
-        openai.api_key = "241c592906b04cbca1be6703ee1089b8"
         entity = {
             "for Spo2": {
                 "dataSource": "Spo2",
@@ -156,22 +145,21 @@ async def reportgeneratror_post(
             }
         current_datetime = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z"
         completion = openai.ChatCompletion.create(
-                    engine="DynamicDashboards",
-                    messages = [{"role":"user","content":"create report definition for temperature vital over last 10 days "},
+            model="gpt-3.5-turbo",
+            messages = [{"role":"user","content":"create report definition for temperature vital over last 10 days "},
                                  {"role":"assistant","content":"{\n\"dataSource\": \"temperature_vital\",\n\"visualization\": \"line chart\",\n\"title\": \"Temperature Vital over Last 10 Days\",\n\"xAxis\": {\n\"columnName\": \"date\",\n\"label\": \"Date\"\n},\n\"yAxis\": [\n{\n\"columnName\": \"temperature\",\n\"label\": \"Temperature (°C)\",\n\"axisBorderColor\": \"#2F4F4F\",\n\"axisTextColor\": \"#2F4F4F\"\n}\n],\n\"filters\": [\n{\n\"op\": \">=\",\n\"col\": \"date\",\n\"val\": \"2021-10-01\"\n}\n]\n}"},
                                  {"role":"user","content":"use this entity rules for vitals"+str(entity)+"and make a note cuurentdatetime is"+current_datetime},
                                  {"role":"user","content":"create table for past 10 appoitments"},
                                  {"role":"assistant","content":str(res)},
                                  {"role":"assistant","content":"make sure \"visualization\" must be either \"line chart\" or \"Tabular\""},
                                  {"role":"user","content":text_report_generator.text}],
-                    temperature=0.7,
-                    max_tokens=2054,
-                    top_p=0.95,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                    stop=None,
-                    timeout=20
-                    )
+            temperature=0.7,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None,
+            timeout=20
+        )
         data=completion.choices[0].message.content
         # print("response",data)
         json_start = data.find("{")

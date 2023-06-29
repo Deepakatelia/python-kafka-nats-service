@@ -25,8 +25,10 @@ from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from openapi_server.models.message_dto import MessageDto
 from openapi_server.models.reviewlabpromt import Reviewlabpromt
 from openapi_server.models.reviewlabsummary import Reviewlabsummary
-
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 router = APIRouter()
 
 
@@ -45,22 +47,21 @@ async def reviewlabsummary_post(
     reviewlabpromt: Reviewlabpromt = Body(None, description=""),
 ) -> Reviewlabsummary:
     try:
-        openai.api_type = "azure"
-        openai.api_base = "https://atelia.openai.azure.com/"
-        openai.api_version = "2023-03-15-preview"
-        openai.api_key = "241c592906b04cbca1be6703ee1089b8"
+        # openai.api_type = "azure"
+        # openai.api_base = "https://atelia.openai.azure.com/"
+        # openai.api_version = "2023-03-15-preview"
+        # openai.api_key = "241c592906b04cbca1be6703ee1089b8"
         async def getdatafrom_azure(text):
             completion = openai.ChatCompletion.create(
-                        engine="DynamicDashboards",
-                        messages = [{"role": "user", "content": "generate summary for conversation" + str(text)}],
-                        temperature=0.7,
-                        max_tokens=2054,
-                        top_p=0.95,
-                        frequency_penalty=0,
-                        presence_penalty=0,
-                        stop=None,
-                        timeout=20
-                        )
+            model="gpt-3.5-turbo",
+            messages = [{"role": "user", "content": "generate summary " + str(text)}],
+            temperature=0.7,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None,
+            timeout=20
+            )
             return completion.choices[0].message.content
         try:
             response=await asyncio.wait_for(getdatafrom_azure(reviewlabpromt.promt),timeout=1)

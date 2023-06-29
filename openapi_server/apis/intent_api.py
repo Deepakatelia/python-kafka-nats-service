@@ -32,16 +32,13 @@ from openapi_server.apis.create_careplan_api import creategoal_post
 from openapi_server.models.text_creategoal import TextCreategoal
 from openapi_server.models.textpreauthorization import Textpreauthorization
 from openapi_server.apis.pre_authorization_api import preauthorization_post
+from dotenv import load_dotenv
+import os
 
-# router = APIRouter()
-# app = FastAPI()
+# Load environment variables from .env file
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 router = APIRouter()
-# app.include_router(ScheduleAppointmentsApiRouter)
-# client = TestClient(app)
-
-# data = {"text_schedule_appointments": {"text": [{"role": "user", "content": "appointment"}]}}
-# response = client.post("/ScheduleAppointments", json=data)
-# print(response.json())
 
 
 @router.post(
@@ -80,24 +77,20 @@ async def extractintent_post(
             }
 
         }
-        openai.api_type = "azure"
-        openai.api_base = "https://atelia.openai.azure.com/"
-        openai.api_version = "2023-03-15-preview"
-        openai.api_key = "241c592906b04cbca1be6703ee1089b8"
+
         completion = openai.ChatCompletion.create(
-                    engine="DynamicDashboards",
-                    messages = [
+            model="gpt-3.5-turbo",
+            messages = [
                         {"role": "user", "content": "Hello"},
                         {"role": "assistant", "content": "Based on the given intent generator rules, the intent in the text \"Hello\" cannot be identified as it does not match any of the specified intents.",},
                         {"role": "user", "content": "identify the intent in the text:" + str(textintent.text[0].content)+ "and make sure you follow the intent generator rules:"+str(rules)}],
-                    temperature=0.7,
-                    max_tokens=2054,
-                    top_p=0.95,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                    stop=None,
-                    timeout=20
-                    )
+            temperature=0.7,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None,
+            timeout=20
+        )
         data=completion.choices[0].message.content
         print(data)
         def checkintent(data):
@@ -150,19 +143,18 @@ async def extractintent_post(
 
         elif intent==False:
             completion_general_bot = openai.ChatCompletion.create(
-                    engine="DynamicDashboards",
-                    messages = [
+            model="gpt-3.5-turbo",
+            messages = [
                         {"role": "user", "content": "when the user input was related to this input:\"what services you provide me\" give the this response \"As an AI language model,i can help you to schedule fellow up appointments,generate pre-authorisation notes,create goals under the plan,Dispatch educational material,Order prescription,Review labs\""},
                         {"role": "assistant", "content": "As an AI language model,i can help you to schedule fellow up appointments,generate pre-authorisation notes,create goals under the plan,Dispatch educational material,Order prescription,Review labs"},
                         {"role": "user", "content": str(textintent.text[0].content)}],
-                    temperature=0.7,
-                    max_tokens=2054,
-                    top_p=0.95,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                    stop=None,
-                    timeout=20
-                    )
+            temperature=0.7,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None,
+            timeout=20
+        )
             data_general=completion_general_bot.choices[0].message.content
             return JSONResponse(
             status_code=202,

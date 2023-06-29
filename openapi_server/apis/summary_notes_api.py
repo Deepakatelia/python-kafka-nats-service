@@ -18,7 +18,10 @@ from fastapi import (  # noqa: F401
 import openai
 from starlette.responses import JSONResponse
 
-openai.api_key = "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"
+from dotenv import load_dotenv
+import os
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 # 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
 
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
@@ -45,21 +48,16 @@ async def notessummary_post(
     notes_inner: List[NotesInner] = Body(None, description=""),
 ) -> Summary:
     try:
-        openai.api_type = "azure"
-        openai.api_base = "https://atelia.openai.azure.com/"
-        openai.api_version = "2023-03-15-preview"
-        openai.api_key = "241c592906b04cbca1be6703ee1089b8"
         completion = openai.ChatCompletion.create(
-                    engine="DynamicDashboards",
-                    messages = [{"role": "user", "content": " read all  notes and give me summary" + str(notes_inner)}],
-                    temperature=0.7,
-                    max_tokens=2054,
-                    top_p=0.95,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                    stop=None,
-                    timeout=30
-                    )
+            model="gpt-3.5-turbo",
+            messages = [{"role": "user", "content": " read all  notes and give me summary" + str(notes_inner)}],
+            temperature=0.7,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None,
+            timeout=20
+             )
         data=completion.choices[0].message.content
         # print(completion.choices[0].message.content)
         return JSONResponse(

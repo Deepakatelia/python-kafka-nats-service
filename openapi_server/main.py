@@ -39,15 +39,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-def receive_signal(signalNumber, frame):
-    print('Received:', signalNumber)
-    sys.exit()
 
-
-@app.on_event("startup")
-async def startup_event():
-    import signal
-    signal.signal(signal.SIGINT, receive_signal)
 
 
 

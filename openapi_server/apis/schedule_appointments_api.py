@@ -27,7 +27,10 @@ from openapi_server.models.appointment_dto import AppointmentDto
 from openapi_server.models.message_dto import MessageDto
 from openapi_server.models.text_schedule_appointments import TextScheduleAppointments
 import asyncio
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 router = APIRouter()
 
 
@@ -46,10 +49,10 @@ async def schedule_appointments_post(
     text_schedule_appointments: TextScheduleAppointments = Body(None, description=""),
 ) -> AppointmentDto:
     try:
-        openai.api_type = "azure"
-        openai.api_base = "https://atelia.openai.azure.com/"
-        openai.api_version = "2023-03-15-preview"
-        openai.api_key = "241c592906b04cbca1be6703ee1089b8"
+        # openai.api_type = "azure"
+        # openai.api_base = "https://atelia.openai.azure.com/"
+        # openai.api_version = "2023-03-15-preview"
+        # openai.api_key = "241c592906b04cbca1be6703ee1089b8"
 
         current_datetime = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z"
         datetime_obj = datetime.datetime.strptime(current_datetime, "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -74,16 +77,15 @@ async def schedule_appointments_post(
         # print(existing_chats)
         async def callazureapi(data):
             completion = openai.ChatCompletion.create(
-                        engine="DynamicDashboards",
-                        messages = data,
-                        temperature=0.7,
-                        max_tokens=2054,
-                        top_p=0.95,
-                        frequency_penalty=0,
-                        presence_penalty=0,
-                        stop=None,
-                        timeout=20
-                        )
+            model="gpt-3.5-turbo",
+            messages = data,
+            temperature=0.7,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None,
+            timeout=20
+             )
             return completion
         response = await asyncio.wait_for(callazureapi(existing_chats), timeout=1)
         data=response.choices[0].message.content
