@@ -17,5 +17,4 @@ steps:
         "us-central1",
         "--allow-unauthenticated",
         "--env-vars-file",
-        ".env.yml",
       ]
