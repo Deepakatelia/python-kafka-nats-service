@@ -50,7 +50,7 @@ async def notessummary_post(
     try:
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages = [{"role": "user", "content": " read all  notes and give me summary" + str(notes_inner)}],
+            messages = [{"role": "user", "content": "summarise and give me a single paragraph response should contains maximum 200 words only" + str(notes_inner)}],
             temperature=0.7,
             top_p=0.95,
             frequency_penalty=0,
