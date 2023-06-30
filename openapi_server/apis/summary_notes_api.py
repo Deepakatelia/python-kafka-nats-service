@@ -21,7 +21,7 @@ from starlette.responses import JSONResponse
 from dotenv import load_dotenv
 import os
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = "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"
 # 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
 
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
