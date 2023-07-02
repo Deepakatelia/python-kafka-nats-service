@@ -21,7 +21,8 @@ from starlette.responses import JSONResponse
 from dotenv import load_dotenv
 import os
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key ="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"
 # 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
 
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
@@ -50,7 +51,7 @@ async def notessummary_post(
     try:
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages = [{"role": "user", "content": "summarise and give me a single paragraph response should contains maximum 200 words only" + str(notes_inner)}],
+            messages = [{"role": "user", "content": "summarise and give me a single paragraph and make sure response should contains maximum 150 words only" + str(notes_inner)}],
             temperature=0.7,
             top_p=0.95,
             frequency_penalty=0,
