@@ -110,7 +110,6 @@ async def extractintent_post(
                 print("false")
                 return False
         intent=checkintent(data)
-        # print(intent)
         if intent=="appointment":
             text_schedule_appointments =TextScheduleAppointments(text=textintent.text)
             res= await schedule_appointments_post(text_schedule_appointments)
@@ -127,8 +126,8 @@ async def extractintent_post(
             print(res)
             response = json.loads(res.body.decode())
             # print(response.content)
-            response["intent"]="visitsummary"
-            # print((response))
+            response["intent"]="goal"
+            print((response))
             return JSONResponse(
                 status_code=200,
                 content=response,
