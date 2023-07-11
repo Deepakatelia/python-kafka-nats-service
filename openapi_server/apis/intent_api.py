@@ -28,8 +28,11 @@ from openapi_server.models.textintent import Textintent
 from openapi_server.models.text_schedule_appointments import TextScheduleAppointments
 # from fastapi import FastAPI
 from openapi_server.apis.schedule_appointments_api import schedule_appointments_post 
+from openapi_server.apis.summary_conversation_api import conversationsummary_post
 from openapi_server.apis.create_careplan_api import creategoal_post
 from openapi_server.models.text_creategoal import TextCreategoal
+from openapi_server.models.conversation_inner import ConversationInner
+
 from openapi_server.models.textpreauthorization import Textpreauthorization
 from openapi_server.apis.pre_authorization_api import preauthorization_post
 from dotenv import load_dotenv
@@ -37,7 +40,8 @@ import os
 
 # Load environment variables from .env file
 load_dotenv()
-openai.api_key = "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"
+# openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key ="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"
 router = APIRouter()
 
 
@@ -66,14 +70,14 @@ async def extractintent_post(
             "for pre-authorization":{
                 "intent":"preauthorization"
             },
-            "for create  goal":{
-                "intent":"goal"
-            },
             "for Order prescription":{
                 "intent":"prescription"
             },
             "for Dispatch educational material":{
                 "intent":"educationalmaterial"
+            },
+            "for doctor patient conversations return intent as visitsummary":{
+                "intent":"visitsummary"
             }
 
         }
@@ -94,7 +98,7 @@ async def extractintent_post(
         data=completion.choices[0].message.content
         print(data)
         def checkintent(data):
-            word_list = ['appointment', 'goal', 'preauthorization', 'lab',"prescription","educationalmaterial"]
+            word_list = ['appointment', 'preauthorization', 'lab',"prescription","educationalmaterial","visitsummary"]
             found_words = []
             for word in word_list:
                 if word in data:
@@ -106,6 +110,7 @@ async def extractintent_post(
                 print("false")
                 return False
         intent=checkintent(data)
+        print(intent)
         if intent=="appointment":
             text_schedule_appointments =TextScheduleAppointments(text=textintent.text)
             res= await schedule_appointments_post(text_schedule_appointments)
@@ -116,14 +121,13 @@ async def extractintent_post(
                 status_code=200,
                 content=response,
             )
-
-
-        elif intent=="goal":
-            text_create_goal =TextCreategoal(text=textintent.text)
-            res= await creategoal_post(text_create_goal)
+        elif intent=="visitsummary":
+            conversation_inner = ConversationInner(text=textintent.text)
+            res=await conversationsummary_post(conversation_inner)
+            print(res)
             response = json.loads(res.body.decode())
             # print(response.content)
-            response["intent"]="goal"
+            response["intent"]="visitsummary"
             print((response))
             return JSONResponse(
                 status_code=200,

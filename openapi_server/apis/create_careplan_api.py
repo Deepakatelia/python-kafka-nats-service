@@ -32,8 +32,8 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
-openai.api_key = "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"
-
+# openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key ="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"
 router = APIRouter()
 
 
@@ -85,6 +85,10 @@ async def creategoal_post(
             timeout=20
         )
         data=completion.choices[0].message.content
+        res=CreategoalDto(role="assistant",content=data,intent="goal")
+        print(text_creategoal)
+        print("res",res)
+        # return res
         return JSONResponse(
             status_code=202,
             content={"role":"assistant","content":data,"intent":"goal"},

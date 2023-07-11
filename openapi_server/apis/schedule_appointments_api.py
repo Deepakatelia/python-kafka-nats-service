@@ -30,7 +30,8 @@ import asyncio
 from dotenv import load_dotenv
 import os
 load_dotenv()
-openai.api_key = "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"
+# openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key ="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"
 router = APIRouter()
 
 
@@ -62,11 +63,11 @@ async def schedule_appointments_post(
 
         existing_chats = [
             {"role":"system","content":"Assistant is an AI chatbot that helps users turn a natural language list into JSON format. After users input a list they want in JSON format, it will provide suggested list of attribute labels if the user has not provided any, then ask the user"},
-            {"role":"user","content":"schedule a follow-up virtual appointment   on June 11th at 3 PM"},
-            {"role":"assistant","content":"{\"id\": \"auto-generated\",\n  \"appointmentType\": 1,\n  \"appointmentDate\": \"2023-06-11\",\n  \"slotTime\": \"3 PM\",\n  \"symptoms\": \"headache and feeling ill\"}"},
+            {"role":"user","content":"schedule a follow-up virtual appointment   on June 11th at 1100-1150PM"},
+            {"role":"assistant","content":"{\"id\": \"auto-generated\",\n  \"appointmentType\": 1,\n  \"appointmentDate\": \"2023-06-11\",\n  \"slotTime\": \"1100-1150PM\",\n  \"symptoms\": \"headache and feeling ill\"}"},
             {"role": "user", "content": "what services you provide or how can you help me"},
             {"role": "assistant", "content": "I can help you with various tasks schedule a follow-up appointments and more."},
-            {"role": "user", "content": " note current date was "+str(date)+" and appointmentDate,slotTime,symptoms and appointmentType=(1 if vitual apponitment else 2 for in-person visit)are required make sure you get it from user and make sure you didn't miss any fields while generating the response"},
+            {"role": "user", "content": " note current date was "+str(date)+" and appointmentDate,slotTime,symptoms and appointmentType=(1 if vitual apponitment else 2 for in-person visit) and slotTime must be in the format of(HHMM-HHMM) are required make sure you get it from user and make sure you didn't miss any fields while generating the response"},
             {"role": "assistant", "content": "Sure i make a note current date was"+str(date)+"and i generate dates accourding to this date"},
         ]
         # new_chat = [{"role": "user", "content": text_creategoal.text}]

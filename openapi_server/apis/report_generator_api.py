@@ -38,7 +38,8 @@ from openapi_server.models.textreportgenerator import Textreportgenerator
 from dotenv import load_dotenv
 import os
 load_dotenv()
-openai.api_key = "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"
+# openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key ="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"
 router = APIRouter()
 
 
@@ -91,6 +92,22 @@ async def reportgeneratror_post(
             "title": "String",
                     "columns": [
                                 {
+                                    "columnName": "patientId",
+                                    "label": "patientId"
+                                },
+                                {
+                                    "columnName": "doctorId",
+                                    "label": "doctorId"
+                                },
+                                {
+                                    "columnName": "doctorName",
+                                    "label": "doctorName"
+                                },
+                                {
+                                    "columnName": "doctorImageUrl",
+                                    "label": "doctorImageUrl"
+                                },
+                                {
                                     "columnName": "id",
                                     "label": "id"
                                 },
@@ -110,10 +127,7 @@ async def reportgeneratror_post(
                                     "columnName": "symptoms",
                                     "label": "symptoms"
                                 },
-                                {
-                                    "columnName": "patientId",
-                                    "label": "patientId"
-                                },
+                             
                                 {
                                     "columnName": "patientName",
                                     "label": "patientName"
@@ -121,19 +135,8 @@ async def reportgeneratror_post(
                                 {
                                     "columnName": "patientImageUrl",
                                     "label": "patientImageUrl"
-                                },
-                                {
-                                    "columnName": "doctorId",
-                                    "label": "doctorId"
-                                },
-                                {
-                                    "columnName": "doctorName",
-                                    "label": "doctorName"
-                                },
-                                {
-                                    "columnName": "doctorImageUrl",
-                                    "label": "doctorImageUrl"
                                 }
+                                
                                 ],
             "filters": [
                 {
