@@ -92,6 +92,22 @@ async def reportgeneratror_post(
             "title": "String",
                     "columns": [
                                 {
+                                    "columnName": "patientId",
+                                    "label": "patientId"
+                                },
+                                {
+                                    "columnName": "doctorId",
+                                    "label": "doctorId"
+                                },
+                                {
+                                    "columnName": "doctorName",
+                                    "label": "doctorName"
+                                },
+                                {
+                                    "columnName": "doctorImageUrl",
+                                    "label": "doctorImageUrl"
+                                },
+                                {
                                     "columnName": "id",
                                     "label": "id"
                                 },
@@ -111,10 +127,7 @@ async def reportgeneratror_post(
                                     "columnName": "symptoms",
                                     "label": "symptoms"
                                 },
-                                {
-                                    "columnName": "patientId",
-                                    "label": "patientId"
-                                },
+                             
                                 {
                                     "columnName": "patientName",
                                     "label": "patientName"
@@ -122,19 +135,8 @@ async def reportgeneratror_post(
                                 {
                                     "columnName": "patientImageUrl",
                                     "label": "patientImageUrl"
-                                },
-                                {
-                                    "columnName": "doctorId",
-                                    "label": "doctorId"
-                                },
-                                {
-                                    "columnName": "doctorName",
-                                    "label": "doctorName"
-                                },
-                                {
-                                    "columnName": "doctorImageUrl",
-                                    "label": "doctorImageUrl"
                                 }
+                                
                                 ],
             "filters": [
                 {

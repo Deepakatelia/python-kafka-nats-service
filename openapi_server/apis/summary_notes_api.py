@@ -51,7 +51,10 @@ async def notessummary_post(
     try:
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages = [{"role": "user", "content": "summarise and give me a single paragraph and make sure response should contains maximum 150 words only" + str(notes_inner)}],
+            messages = [
+                {"role":"system","content":"Assistant is an AI chatbot that helps the Doctors to summarize all the notes and give response in simple words.Note: response should be in format of identification of patients condition,doctor priscriptions,plans,assesment"},
+                {"role": "user", "content": "summarise all the notes and give me a 2 or 3 lines as bullet ponits by using simple english" + str(notes_inner)}
+                ],
             temperature=0.7,
             top_p=0.95,
             frequency_penalty=0,
@@ -60,7 +63,7 @@ async def notessummary_post(
             timeout=20
              )
         data=completion.choices[0].message.content
-        # print(completion.choices[0].message.content)
+        print(data)
         return JSONResponse(
             status_code=202,
             content={"summary": data},
