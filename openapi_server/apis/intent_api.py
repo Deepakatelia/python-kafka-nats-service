@@ -126,7 +126,6 @@ async def extractintent_post(
             print(res)
             response = json.loads(res.body.decode())
             # print(response.content)
-            response["intent"]="goal"
             print((response))
             return JSONResponse(
                 status_code=200,

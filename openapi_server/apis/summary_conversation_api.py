@@ -27,6 +27,7 @@ from openapi_server.models.message_dto import MessageDto
 from openapi_server.models.summary import Summary
 from dotenv import load_dotenv
 import os
+import json
 load_dotenv()
 # openai.api_key = os.getenv("OPENAI_API_KEY")
 openai.api_key ="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"
@@ -50,12 +51,77 @@ async def conversationsummary_post(
     # conversation_inner: List[ConversationInner] = Body(None, description=""),
 ) -> ConversationDto:
     try:
-        print(conversation_inner)
+        # print(conversation_inner)
+        entities={
+            "Subjective": {
+                "Chief of Complaint(CC)": {
+                "Symptoms": "",
+                "Problem": "Manual|Voice",
+                "Condition": "",
+                "Diagnosis": "",
+                "Physician Recommended return or other factor for the appointment": "Appointment notes"
+                },
+                "History of Present Illness (HPI)": {
+                "Narrative of the patient symptoms": "generate 2 - 3 lines max"
+                },
+                "Past Medical History (PMH)": {
+                "Conditions": "",
+                "Surgeries": "",
+                "Hospitalizations": ""
+                },
+                "Social History (SH)": {
+                "Patient Lifestyle": "",
+                "Smoke History": "",
+                "Alcohol History": ""
+                },
+                "Family history (FH)": {
+                "Patient's family's medical history": ""
+                }
+            },
+            "Objective": {
+                "Vital signs": {
+                "Temperature": "",
+                "Heart rate": "",
+                "Respiratory rate": "",
+                "Blood pressure": "",
+                "Oxygen saturation": ""
+                },
+                "Physical exam findings": {
+                "Appearance": "Manual|Voice",
+                "Lung": "Manual|Voice",
+                "Cardiac": "Manual|Voice",
+                "Abdominal": "Manual|Voice",
+                "Extremities": "Manual|Voice",
+                "Behavior": "Manual|Voice",
+                "Mental status": "Manual|Voice"
+                },
+                "Laboratory and diagnostic test results": {
+                "Laboratory": "",
+                "Diagnostic Imaging": "",
+                "Microbiology": ""
+                }
+            },
+            "Assessment": {
+                "Diagnosis": "Manual|Voice",
+                "Differential diagnosis": "Manual|Voice",
+                "Prognosis 1-line prognosis": "Manual|Voice"
+            },
+            "Plan": {
+                "Treatment plan": {
+                "New medications": "Manual|Voice",
+                "New steps, goals, tasks": "Manual|Voice"
+                },
+                "Follow-up plan": {
+                "Next Appointment": "Manual|Voice"
+                }
+            }
+            }
+
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages = [
-                 {"role":"system","content":"Assistant is an AI chatbot that helps the Doctors to make a summary for patient-doctor conversations and turn that conversation as bullet ponits Subjective:,Objective:,Assessment:,Plan:,Time: "},
-                {"role": "user", "content": "generate summary for conversation" + str(conversation_inner)}
+                 {"role":"system","content":"Assistant is an AI chatbot that helps the Doctors to make a jsondata for patient-doctor conversations and turn that conversation as mention:"+str(entities)+" note: focus on the data where feilds are mention as Manual|recorded and return unmaped feilds as \"Not mentioned\""},
+                {"role": "user", "content": "map the entities by analyse the conversation" + str(conversation_inner)}
                 ],
             temperature=0.7,
             top_p=0.95,
@@ -65,10 +131,12 @@ async def conversationsummary_post(
             timeout=20
              )
         data=completion.choices[0].message.content
-        print(data)
+        
+        jsondata = json.loads(data)
+        print(jsondata)
         return JSONResponse(
             status_code=202,
-            content={"role":"assistant","content":data,"intent":"visitsummary"},
+            content=jsondata,
         )
     except openai.error.AuthenticationError:
         return JSONResponse(
