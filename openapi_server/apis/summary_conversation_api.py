@@ -56,13 +56,12 @@ async def conversationsummary_post(
             "Subjective": {
                 "Chief of Complaint(CC)": {
                 "Symptoms": "",
-                "Problem": "Manual|Voice",
+                "Problem": "",
                 "Condition": "",
-                "Diagnosis": "",
-                "Physician Recommended return or other factor for the appointment": "Appointment notes"
+                "Diagnosis": ""
                 },
                 "History of Present Illness (HPI)": {
-                "Narrative of the patient symptoms": "generate 2 - 3 lines max"
+                "Narrative of the patient symptoms": "generate 2 - 3 lines max if possible as bullet points"
                 },
                 "Past Medical History (PMH)": {
                 "Conditions": "",
@@ -87,13 +86,13 @@ async def conversationsummary_post(
                 "Oxygen saturation": ""
                 },
                 "Physical exam findings": {
-                "Appearance": "Manual|Voice",
-                "Lung": "Manual|Voice",
-                "Cardiac": "Manual|Voice",
-                "Abdominal": "Manual|Voice",
-                "Extremities": "Manual|Voice",
-                "Behavior": "Manual|Voice",
-                "Mental status": "Manual|Voice"
+                "Appearance": "",
+                "Lung": "",
+                "Cardiac": "",
+                "Abdominal": "",
+                "Extremities": "",
+                "Behavior": "",
+                "Mental status": ""
                 },
                 "Laboratory and diagnostic test results": {
                 "Laboratory": "",
@@ -101,27 +100,15 @@ async def conversationsummary_post(
                 "Microbiology": ""
                 }
             },
-            "Assessment": {
-                "Diagnosis": "Manual|Voice",
-                "Differential diagnosis": "Manual|Voice",
-                "Prognosis 1-line prognosis": "Manual|Voice"
-            },
-            "Plan": {
-                "Treatment plan": {
-                "New medications": "Manual|Voice",
-                "New steps, goals, tasks": "Manual|Voice"
-                },
-                "Follow-up plan": {
-                "Next Appointment": "Manual|Voice"
-                }
-            }
+            "Assessment": "if any Diagnosis by doctor map here",
+            "Plan": "make sure response as bullet points"
             }
 
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages = [
-                 {"role":"system","content":"Assistant is an AI chatbot that helps the Doctors to make a jsondata for patient-doctor conversations and turn that conversation as mention:"+str(entities)+" note: focus on the data where feilds are mention as Manual|recorded and return unmaped feilds as \"Not mentioned\""},
-                {"role": "user", "content": "map the entities by analyse the conversation" + str(conversation_inner)}
+                 {"role":"system","content":"Assistant is an AI chatbot that helps the Doctors to make a jsondata for patient-doctor conversations and turn that conversation as mention:"+str(entities)+"return unmaped feilds as \"Not mentioned\""},
+                {"role": "user", "content": "map the entities by analyse the conversation " + str(conversation_inner)}
                 ],
             temperature=0.7,
             top_p=0.95,
@@ -131,7 +118,7 @@ async def conversationsummary_post(
             timeout=20
              )
         data=completion.choices[0].message.content
-        
+        print(data)
         jsondata = json.loads(data)
         print(jsondata)
         return JSONResponse(
