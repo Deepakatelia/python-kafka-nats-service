@@ -1,0 +1,58 @@
+image: google/cloud-sdk
+
+stages:
+  - deploy
+
+deploy-dev:
+  stage: deploy
+  variables:
+    SERVICE_ACCOUNT: $DEV_GCP_DEPLOY_SERVICE_ACCOUNT
+    PROJECT_ID: soundheart-dev-94cc1
+    ENV: $SERVICES_DEV_ENV
+  before_script:
+    - echo $SERVICE_ACCOUNT | base64 --decode >> key.json
+    - echo $ENV | base64 --decode >> .env.yml
+    - gcloud auth activate-service-account --key-file key.json
+    - gcloud config set project $PROJECT_ID
+  script:
+    - gcloud builds submit . --config=cloudbuild.yml
+  tags:
+    - docker
+
+deploy-demo:
+  stage: deploy
+  variables:
+    SERVICE_ACCOUNT: $SOUNDHEART_GCP_DEPLOY_SERVICE_ACCOUNT
+    PROJECT_ID: soundheart-65474
+    ENV: $SERVICES_SOUNDHEART_ENV
+  before_script:
+    - echo $SERVICE_ACCOUNT | base64 --decode >> key.json
+    - echo $ENV | base64 --decode >> .env.yml
+    - gcloud auth activate-service-account --key-file key.json
+    - gcloud config set project $PROJECT_ID
+  script:
+    - gcloud builds submit . --config=cloudbuild.yml
+  when: manual
+  environment:
+    name: demo
+  tags:
+    - docker
+
+deploy-cvi:
+  stage: deploy
+  variables:
+    SERVICE_ACCOUNT: $SOUNDHEART_QA_GCP_DEPLOY_SERVICE_ACCOUNT
+    PROJECT_ID: soundheart-qa-4685e
+    ENV: $SERVICES_CVI_ENV
+  before_script:
+    - echo $SERVICE_ACCOUNT | base64 --decode >> key.json
+    - echo $ENV | base64 --decode >> .env.yml
+    - gcloud auth activate-service-account --key-file key.json
+    - gcloud config set project $PROJECT_ID
+  script:
+    - gcloud builds submit . --config=cloudbuild.yml
+  when: manual
+  environment:
+    name: cvi
+  tags:
+    - docker
