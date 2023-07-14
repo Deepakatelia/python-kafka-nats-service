@@ -20,6 +20,7 @@ from openapi_server.apis.intent_api import router as IntentApiRouter
 from openapi_server.apis.summary_conversation_api import router as SummaryConversationApiRouter
 from openapi_server.apis.summary_notes_api import router as SummaryNotesApiRouter
 from openapi_server.apis.review_lab_summary_api import router as ReviewLabSummaryApiRouter
+from openapi_server.apis.transcription_label import router as TranscriptionLabelingApiRouter
 # app = FastAPI()
 app = FastAPI(
     title="Report&SummaryGenerator-OpenAPI",
@@ -51,5 +52,6 @@ app.include_router(PreAuthorizationApiRouter)
 app.include_router(ScheduleAppointmentsApiRouter)
 app.include_router(SummaryConversationApiRouter)
 app.include_router(SummaryNotesApiRouter)
+app.include_router(TranscriptionLabelingApiRouter)
 
 
