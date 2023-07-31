@@ -67,7 +67,6 @@ router = APIRouter()
 async def getallpatients(
     patientId: str = Query(None, description=""),
 ) -> PatientDto :
-    # print(nats_server)
     try:
         # nats_server=
         print(os.getenv("NATS_SERVER"))
@@ -84,8 +83,8 @@ async def getallpatients(
         stringdata=response.data.decode()
         # json_str_modified = stringdata.replace('true', 'True')
         res: PatientDto = stringdata
-        report_definition = json.loads(res)
-        return report_definition
+        result = json.loads(res)
+        return result
     except TimeoutError:
         print("Request timed out")
         return {
@@ -121,8 +120,7 @@ async def createPatients(
             if not request:
                 raise ValueError("invalid-inputs")
             
-            AlcoholHistorytRequest = json.loads(json.dumps(request))
-            # print(type(AlcoholHistorytRequest))
+            Request = json.loads(json.dumps(request))
 
             try:
                 print(kafka_server)
@@ -133,7 +131,7 @@ async def createPatients(
                 outgoingMessage = {
                     "key": f"create#{patientdata.patientId}",
                     "value": json.dumps({
-                        **AlcoholHistorytRequest,
+                        **Request,
                         "isExist": True,
                         "createdAt":datetime.datetime.utcnow().isoformat(),
                     }),
