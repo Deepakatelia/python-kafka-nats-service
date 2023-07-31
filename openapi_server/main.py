@@ -12,25 +12,25 @@ import sys
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from openapi_server.apis.create_careplan_api import router as CreateCareplanApiRouter
-from openapi_server.apis.report_generator_api import router as ReportGeneratorApiRouter
-from openapi_server.apis.schedule_appointments_api import router as ScheduleAppointmentsApiRouter
-from openapi_server.apis.pre_authorization_api import router as PreAuthorizationApiRouter
-from openapi_server.apis.intent_api import router as IntentApiRouter
-from openapi_server.apis.summary_conversation_api import router as SummaryConversationApiRouter
-from openapi_server.apis.summary_notes_api import router as SummaryNotesApiRouter
-from openapi_server.apis.review_lab_summary_api import router as ReviewLabSummaryApiRouter
-from openapi_server.apis.transcription_label import router as TranscriptionLabelingApiRouter
+from openapi_server.apis.patients import router as CreateCareplanApiRouter
 # app = FastAPI()
+from fastapi import APIRouter, Depends
+from openapi_server.authentication_strategy import AuthenticationStrategy
 app = FastAPI(
-    title="Report&SummaryGenerator-OpenAPI",
-    description="Report&SummaryGenerator-Service",
+    title="Patients data service",
+    description="Data Service",
     version="0.0.1",
     docs_url="/docs",
     redoc_url=None,
     openapi_url="/docs/swagger.json",
 )
 # # Configure CORS
+auth_strategy = AuthenticationStrategy()
+
+# Add the authentication middleware to the FastAPI app
+# app.add_middleware()
+
+# app.add_middleware()
 
 app.add_middleware(
 
@@ -39,19 +39,20 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    
+    
 )
+# router = APIRouter()
+# @router.get("/secure_route")
+# async def secure_route_handler(user_data: dict = Depends(auth_strategy)):
+#     # Your secure route logic here
+#     return {"message": "This route requires authentication."}
 
 
 
+# app.include_router(router)
+app.include_router(CreateCareplanApiRouter,dependencies=[Depends(auth_strategy)])
 
-app.include_router(CreateCareplanApiRouter)
-app.include_router(IntentApiRouter)
-app.include_router(ReviewLabSummaryApiRouter)
-app.include_router(ReportGeneratorApiRouter)
-app.include_router(PreAuthorizationApiRouter)
-app.include_router(ScheduleAppointmentsApiRouter)
-app.include_router(SummaryConversationApiRouter)
-app.include_router(SummaryNotesApiRouter)
-app.include_router(TranscriptionLabelingApiRouter)
+
 
 
